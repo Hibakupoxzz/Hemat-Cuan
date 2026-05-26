@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
   ],
   build: {
-    outDir: '../../dist',
+    outDir: '../../renderer-dist',
     emptyOutDir: true,
   },
   server: {

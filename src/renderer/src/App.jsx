@@ -244,7 +244,7 @@ export default function App() {
               <div className="w-3 h-3 rounded-full bg-danger" />
               <div className="w-3 h-3 rounded-full bg-warning" />
               <div className="w-3 h-3 rounded-full bg-success" />
-              <span className="ml-2 text-white/50 text-xs font-medium tracking-widest uppercase">FinanceWidget v1.0</span>
+              <span className="ml-2 text-white/50 text-xs font-medium tracking-widest uppercase">Hemat Cuan Beta 0.2</span>
             </div>
             <div className="flex gap-3 titlebar-no-drag z-10">
               <button 

@@ -23,13 +23,14 @@ function createWindow() {
   });
 
   // Load URL berdasarkan mode
-  if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
-    // Buka DevTools di mode dev (comment jika tidak perlu)
-    // mainWindow.webContents.openDevTools({ mode: 'detach' });
-  } else {
-    mainWindow.loadFile(path.join(__dirname, '../../dist/index.html'));
-  }
+if (isDev) {
+  mainWindow.loadURL('http://localhost:5173');
+} else {
+  mainWindow.loadFile(
+    path.join(app.getAppPath(), 'renderer-dist/index.html')
+  );
+  // mainWindow.webContents.openDevTools();
+}
 
   // Sembunyikan ke tray saat ditutup (bukan quit)
   mainWindow.on('close', (event) => {
@@ -41,13 +42,8 @@ function createWindow() {
 }
 
 function createTray() {
-  // Buat icon tray sederhana (16x16 pixel ungu)
-  const icon = nativeImage.createFromBuffer(
-    Buffer.from(
-      'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAARklEQVQ4T2P8z8Dwn4EIwMjAwMBEjHpmBgYGJmI0MDMwMDARo4GZgYGBiRgNzAwMDEzEaGBmYGAgOhaYiQ0DZgYGBiYAKHwIEVHjG3EAAAAASUVORK5CYII=',
-      'base64'
-    )
-  );
+  const iconPath = path.join(__dirname, 'assets', 'icon.png'); // ← pakai file
+  const icon = nativeImage.createFromPath(iconPath);
 
   tray = new Tray(icon);
   tray.setToolTip('Widget Keuangan');
