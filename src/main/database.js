@@ -8,7 +8,7 @@ const db = new Database(dbPath);
 
 // Aktifkan WAL mode untuk performa lebih baik
 db.pragma('journal_mode = WAL');
-
+// ini apaan dah
 /**
  * Inisialisasi tabel transaksi dan pembayaran prioritas
  */
