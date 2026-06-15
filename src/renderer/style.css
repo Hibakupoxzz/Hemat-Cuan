@@ -99,3 +99,143 @@ input[type="number"] {
   animation: spk-pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* ─── Progress Bar Fill Animation ─────────────────────────────── */
+@keyframes progress-fill {
+  from {
+    width: 0%;
+  }
+}
+
+.progress-bar-animated {
+  animation: progress-fill 1s ease-out forwards;
+}
+
+/* ─── Savings Goal Sparkle/Celebration ─────────────────────────── */
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.sparkle-1 {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.sparkle-2 {
+  animation: sparkle 2s ease-in-out 0.3s infinite;
+}
+
+.sparkle-3 {
+  animation: sparkle 2s ease-in-out 0.6s infinite;
+}
+
+.bounce-in {
+  animation: bounce-in 0.6s ease-out;
+}
+
+/* ─── Budget Bar Glow ─────────────────────────────────────────── */
+@keyframes budget-warning-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 8px 2px rgba(245, 158, 11, 0.2);
+  }
+}
+
+@keyframes budget-danger-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 8px 2px rgba(244, 63, 94, 0.2);
+  }
+}
+
+.budget-warning-glow {
+  animation: budget-warning-pulse 2s ease-in-out infinite;
+}
+
+.budget-danger-glow {
+  animation: budget-danger-pulse 1.5s ease-in-out infinite;
+}
+
+/* ─── Emoji Bounce on Card ────────────────────────────────────── */
+@keyframes emoji-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.emoji-float {
+  animation: emoji-float 3s ease-in-out infinite;
+}
+
+/* ─── Mini Widget Styles ──────────────────────────────────────── */
+.mini-widget-container {
+  background: linear-gradient(
+    160deg,
+    rgba(124, 58, 237, 0.95) 0%,
+    rgba(88, 28, 195, 0.98) 40%,
+    rgba(67, 20, 160, 0.98) 100%
+  );
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 1px 0 rgba(255, 255, 255, 0.05) inset;
+}
+
+.mini-stat-card {
+  transition: all 0.2s ease;
+}
+
+.mini-stat-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mini-action-btn {
+  transition: all 0.2s ease;
+}
+
+.mini-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mini-action-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Static Gradient accent line */
+.mini-widget-container > div:first-child {
+  background: linear-gradient(to right, var(--color-primary-light), #ec4899, #f59e0b);
+}
+
