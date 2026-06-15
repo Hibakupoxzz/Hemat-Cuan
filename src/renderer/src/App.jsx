@@ -1244,14 +1244,17 @@ export default function App() {
                       </div>
 
                       <div className="flex items-center gap-4">
-                        <label className="w-24 text-sm font-bold uppercase tracking-widest text-lavender/70">Keterangan</label>
-                        <input 
-                          type="text" 
-                          value={formData.keterangan}
-                          onChange={(e) => setFormData({...formData, keterangan: e.target.value})}
-                          placeholder="Makan siang di kantor..."
-                          className="flex-1 bg-transparent border-b border-white/30 pb-2 text-sm focus:outline-none focus:border-white transition-colors italic placeholder-white/40"
-                        />
+                        <label htmlFor="keterangan-input" className="w-24 text-sm font-bold uppercase tracking-widest text-lavender/70 cursor-pointer">Keterangan</label>
+                        <div className="flex-1">
+                          <input 
+                            id="keterangan-input"
+                            type="text" 
+                            value={formData.keterangan}
+                            onChange={(e) => setFormData({...formData, keterangan: e.target.value})}
+                            placeholder="Makan siang di kantor..."
+                            className="w-full bg-transparent border-b border-white/30 pb-2 text-sm focus:outline-none focus:border-white transition-colors italic placeholder-white/40"
+                          />
+                        </div>
                       </div>
 
                       <div className="flex items-start gap-4 mt-2">
