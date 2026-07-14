@@ -120,6 +120,45 @@ function setupIPC() {
     return database.deleteCicilan(id);
   });
 
+  // ─── Tabungan (Savings Goals) IPC Handlers ────────────────────
+  ipcMain.handle('get-tabungan', () => {
+    return database.getAllTabungan();
+  });
+
+  ipcMain.handle('simpan-tabungan', (_event, data) => {
+    return database.insertTabungan(data);
+  });
+
+  ipcMain.handle('update-tabungan-nominal', (_event, id, jumlah) => {
+    return database.updateTabunganNominal(id, jumlah);
+  });
+
+  ipcMain.handle('hapus-tabungan', (_event, id) => {
+    return database.deleteTabungan(id);
+  });
+
+  // ─── Anggaran (Category Budget) IPC Handlers ──────────────────
+  ipcMain.handle('get-anggaran', (_event, bulan, tahun) => {
+    return database.getAnggaran(bulan, tahun);
+  });
+
+  ipcMain.handle('simpan-anggaran', (_event, data) => {
+    return database.upsertAnggaran(data);
+  });
+
+  ipcMain.handle('hapus-anggaran', (_event, id) => {
+    return database.deleteAnggaran(id);
+  });
+
+  // ─── Saldo & Pengeluaran Detail IPC Handlers ──────────────────
+  ipcMain.handle('get-saldo-per-aset', () => {
+    return database.getSaldoPerAset();
+  });
+
+  ipcMain.handle('get-pengeluaran-per-kategori', (_event, bulan, tahun) => {
+    return database.getPengeluaranPerKategori(bulan, tahun);
+  });
+
   ipcMain.handle('close-window', () => {
     if (mainWindow) {
       mainWindow.hide();
@@ -128,7 +167,9 @@ function setupIPC() {
 
   ipcMain.handle('resize-window', (_event, width, height) => {
     if (mainWindow) {
-      mainWindow.setSize(width, height, true); // true for animation if supported
+      mainWindow.setResizable(true);
+      mainWindow.setSize(width, height);
+      mainWindow.setResizable(false);
     }
   });
 }

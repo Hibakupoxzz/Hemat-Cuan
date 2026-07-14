@@ -39,6 +39,29 @@ function initDatabase() {
     )
   `);
 
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS tabungan (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nama TEXT NOT NULL,
+      target_nominal REAL NOT NULL,
+      terkumpul REAL DEFAULT 0,
+      emoji TEXT DEFAULT '🐷',
+      aktif INTEGER DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS anggaran (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      kategori TEXT NOT NULL,
+      batas REAL NOT NULL,
+      bulan INTEGER NOT NULL,
+      tahun INTEGER NOT NULL,
+      UNIQUE(kategori, bulan, tahun)
+    )
+  `);
+
   // Migrasi: tambah kolom bulan dan tahun jatuh tempo
   try {
     const columns = db.prepare("PRAGMA table_info(cicilan)").all();
@@ -282,6 +305,135 @@ function deleteCicilan(id) {
   return stmt.run(id);
 }
 
+// ─── Tabungan (Savings Goals) Functions ───────────────────────────
+
+/**
+ * Ambil semua target tabungan
+ */
+function getAllTabungan() {
+  const stmt = db.prepare('SELECT * FROM tabungan ORDER BY created_at DESC');
+  return stmt.all();
+}
+
+/**
+ * Simpan target tabungan baru
+ */
+function insertTabungan(data) {
+  const stmt = db.prepare(`
+    INSERT INTO tabungan (nama, target_nominal, terkumpul, emoji)
+    VALUES (@nama, @target_nominal, @terkumpul, @emoji)
+  `);
+  return stmt.run({
+    nama: data.nama,
+    target_nominal: data.target_nominal,
+    terkumpul: data.terkumpul || 0,
+    emoji: data.emoji || '🐷',
+  });
+}
+
+/**
+ * Update nominal terkumpul di tabungan (tambah/kurangi)
+ * @param {number} id - ID tabungan
+ * @param {number} jumlah - Jumlah yang ditambahkan (positif) atau dikurangi (negatif)
+ */
+function updateTabunganNominal(id, jumlah) {
+  const stmt = db.prepare(`
+    UPDATE tabungan SET terkumpul = MAX(0, terkumpul + @jumlah) WHERE id = @id
+  `);
+  return stmt.run({ id, jumlah });
+}
+
+/**
+ * Hapus target tabungan
+ */
+function deleteTabungan(id) {
+  const stmt = db.prepare('DELETE FROM tabungan WHERE id = ?');
+  return stmt.run(id);
+}
+
+// ─── Anggaran (Category Budget) Functions ─────────────────────────
+
+/**
+ * Ambil anggaran untuk bulan dan tahun tertentu
+ */
+function getAnggaran(bulan, tahun) {
+  const stmt = db.prepare('SELECT * FROM anggaran WHERE bulan = ? AND tahun = ?');
+  return stmt.all(bulan, tahun);
+}
+
+/**
+ * Buat atau update anggaran kategori (upsert berdasarkan kategori+bulan+tahun)
+ */
+function upsertAnggaran(data) {
+  // Cek apakah sudah ada
+  const existing = db.prepare(
+    'SELECT id FROM anggaran WHERE kategori = @kategori AND bulan = @bulan AND tahun = @tahun'
+  ).get(data);
+
+  if (existing) {
+    const stmt = db.prepare('UPDATE anggaran SET batas = @batas WHERE id = @id');
+    return stmt.run({ id: existing.id, batas: data.batas });
+  } else {
+    const stmt = db.prepare(`
+      INSERT INTO anggaran (kategori, batas, bulan, tahun)
+      VALUES (@kategori, @batas, @bulan, @tahun)
+    `);
+    return stmt.run(data);
+  }
+}
+
+/**
+ * Hapus anggaran berdasarkan ID
+ */
+function deleteAnggaran(id) {
+  const stmt = db.prepare('DELETE FROM anggaran WHERE id = ?');
+  return stmt.run(id);
+}
+
+// ─── Saldo & Pengeluaran Detail Functions ─────────────────────────
+
+/**
+ * Hitung saldo terpisah per aset (tunai, kartu, e-wallet)
+ */
+function getSaldoPerAset() {
+  const stmt = db.prepare(`
+    SELECT 
+      aset,
+      COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0) -
+      COALESCE(SUM(CASE WHEN jenis = 'pengeluaran' THEN nominal ELSE 0 END), 0) as saldo
+    FROM transaksi
+    GROUP BY aset
+  `);
+  const rows = stmt.all();
+  const result = { tunai: 0, kartu: 0, 'e-wallet': 0 };
+  rows.forEach((r) => {
+    result[r.aset] = r.saldo;
+  });
+  return result;
+}
+
+/**
+ * Total pengeluaran per kategori untuk bulan dan tahun tertentu
+ */
+function getPengeluaranPerKategori(bulan, tahun) {
+  const month = String(bulan).padStart(2, '0');
+  const startOfMonth = `${tahun}-${month}-01`;
+  const endOfMonth = `${tahun}-${month}-31 23:59:59`;
+
+  const stmt = db.prepare(`
+    SELECT kategori, COALESCE(SUM(nominal), 0) as total
+    FROM transaksi
+    WHERE jenis = 'pengeluaran' AND tanggal >= ? AND tanggal <= ?
+    GROUP BY kategori
+  `);
+  const rows = stmt.all(startOfMonth, endOfMonth);
+  const result = {};
+  rows.forEach((r) => {
+    result[r.kategori] = r.total;
+  });
+  return result;
+}
+
 // Inisialisasi saat module di-require
 initDatabase();
 
@@ -295,4 +447,16 @@ module.exports = {
   insertCicilan,
   updateCicilan,
   deleteCicilan,
+  // Tabungan
+  getAllTabungan,
+  insertTabungan,
+  updateTabunganNominal,
+  deleteTabungan,
+  // Anggaran
+  getAnggaran,
+  upsertAnggaran,
+  deleteAnggaran,
+  // Detail
+  getSaldoPerAset,
+  getPengeluaranPerKategori,
 };
